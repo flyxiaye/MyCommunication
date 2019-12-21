@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 public class ShareOnlineStateThread extends Thread {
 
     public MessageExp msg = null;
-//    private DatagramSocket ServerSocket = null;
     private VisitDB DataBaseStream = null;
 
     public ShareOnlineStateThread(VisitDB DataBaseStream) {
@@ -39,31 +38,21 @@ public class ShareOnlineStateThread extends Thread {
                 String sql = "SELECT name FROM userinfo WHERE state = 1";
                 //收集在线用户列表
                 String onlineUser = "";
-                ResultSet rs = stmt.executeQuery(sql);        
+                ResultSet rs = stmt.executeQuery(sql);
                 while (rs.next()) {
                     onlineUser += rs.getString("name") + " ";
                 }
-//                //将用户列表发送给在线用户
-//                sql = "SELECT ip, port FROM userinfo WHERE state = 1";
-//                rs = stmt.executeQuery(sql);
-                msg = new MessageExp(MessageExp.USER_MESSAGE, onlineUser);
-//                byte[] dataBuf = MessageExp.ObjectToByte(msg);
-//                while (rs.next()) {
-//                    String ip = rs.getString("ip");
-//                    int port = rs.getInt("port");
-//                    InetAddress clientHost = InetAddress.getByName(ip);
-//                    DatagramPacket packet = new DatagramPacket(
-//                            dataBuf, dataBuf.length, clientHost, port);
-//                    this.ServerSocket.send(packet);
-//                }
+                if (msg == null) {
+                    msg = new MessageExp(MessageExp.USER_MESSAGE, onlineUser);
+                } else {
+                    msg.setData(onlineUser);
+                }
                 sleep(1000);
             } catch (SQLException ex) {
                 Logger.getLogger(ShareOnlineStateThread.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
                 Logger.getLogger(ShareOnlineStateThread.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         }
     }
-
 }

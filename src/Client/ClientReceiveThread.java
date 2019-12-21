@@ -77,8 +77,8 @@ public class ClientReceiveThread extends Thread {
     
     @Override
     public void run() {
-        dataBuf = new byte[2048];
-        packet = new DatagramPacket(dataBuf, 2048);
+        dataBuf = new byte[20480];
+        packet = new DatagramPacket(dataBuf, dataBuf.length);
         while (true) {
             try {
                 socket.receive(packet);

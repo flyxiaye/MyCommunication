@@ -33,8 +33,6 @@ public class MessageExp implements Serializable{
         this.setId(id);
     }
     
-    
-
     public synchronized static Object ByteToObject(byte[] bytes) {
         ObjectInputStream oi = null;
         Object obj = null;

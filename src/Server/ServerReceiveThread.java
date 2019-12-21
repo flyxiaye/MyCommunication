@@ -61,7 +61,7 @@ public class ServerReceiveThread extends Thread {
 
     public void run() {
         jTextArea1.append("服务端启动！\n");
-        dataBuf = new byte[2048];
+        dataBuf = new byte[20480];
         packet = new DatagramPacket(dataBuf, dataBuf.length);
         while (true) {
             try {
@@ -74,21 +74,22 @@ public class ServerReceiveThread extends Thread {
                     case MessageExp.NORMAL_MESSAGE: {//普通消息
                         String toName = msg.getToName();
                         //根据发送过来的IP 端口获取其用户名
-                        Statement stmt = DataBaseStream.con.createStatement();
-                        String sql = "SELECT name FROM userinfo WHERE ip = '" + toIP.getHostAddress()
-                                + "' AND port = " + Integer.toString(toPort);
-                        ResultSet rs = stmt.executeQuery(sql);
+                        String sql = "SELECT name FROM userinfo WHERE ip = ? AND port = ?";
+                        PreparedStatement stmt = DataBaseStream.con.prepareStatement(sql);
+                        stmt.setString(1, toIP.getHostAddress());
+                        stmt.setInt(2, toPort);
+                        ResultSet rs = stmt.executeQuery();
                         String fromName = null;
                         if (rs.next()) {
                             fromName = rs.getString("name");
                         }
                         //将消息写入数据库
-                        DataBaseStream.writeCharRecord(fromName, msg);
+                        DataBaseStream.writeChatRecord(fromName, msg);
                         //根据要发送的用户名获取其IP 端口和在线状态
-                        sql = "SELECT ip, port, state FROM userinfo WHERE name = '"
-                                + toName + "'";
-                        stmt = DataBaseStream.con.createStatement();
-                        rs = stmt.executeQuery(sql);
+                        sql = "SELECT ip, port, state FROM userinfo WHERE name = ?";
+                        stmt = DataBaseStream.con.prepareStatement(sql);
+                        stmt.setString(1, toName);
+                        rs = stmt.executeQuery();
                         if (rs.next()) {
                             toIP = InetAddress.getByName(rs.getString("ip"));
                             toPort = rs.getInt("port");
@@ -160,11 +161,14 @@ public class ServerReceiveThread extends Thread {
                             fromName = rs.getString("name");
                         }
                         //根据双方用户名获取聊天记录
-                        sql = "SELECT date, fromname, record FROM chatrecord WHERE fromname = '" + fromName
-                                + "' AND toname = '" + toName + "' OR fromname = '"
-                                + toName + "' AND toname = '" + fromName + "'";
-                        stmt = DataBaseStream.con.createStatement();
-                        ResultSet rsRecord = stmt.executeQuery(sql);
+                        sql = "SELECT date, fromname, record FROM chatrecord WHERE fromname = ? AND toname = ? "
+                                + "OR fromname = ? AND toname = ?";
+                        PreparedStatement pst = DataBaseStream.con.prepareStatement(sql);
+                        pst.setString(1, fromName);
+                        pst.setString(2, toName);
+                        pst.setString(3, toName);
+                        pst.setString(4, fromName);
+                        ResultSet rsRecord = pst.executeQuery();
                         MessageRecord msgR = new MessageRecord(MessageExp.RECORD_MESSAGE);
                         msgR.setToName(toName);
                         while (rsRecord.next()) {
@@ -174,6 +178,7 @@ public class ServerReceiveThread extends Thread {
                             msgR.addRecord(date, from, record);
                         }
                         sender.sendMessage(msgR, toIP, toPort);
+                        pst.close();
                         stmt.close();
                     }
                     break;

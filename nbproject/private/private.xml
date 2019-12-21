@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="1">
+        <file>
+            <url>src/Client/ClientReceiveThread.java</url>
+            <bookmark id="1">
+                <name/>
+                <line>0</line>
+                <key/>
+            </bookmark>
+        </file>
+    </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/Client/ClientJFrame.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/exp/MessageRecord.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/Client/Info.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/Client/ClientSendThread.java</file>
-            <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/mycommunication/MyCommunication.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/Client/ChatRecordJDialog.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/Server/ServerJFrame.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/Server/ShareOnlineStateThread.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/exp/VisitDB.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/Client/ClientReceiveThread.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/Client/SetIPJDialog.java</file>
-            <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/exp/Message.java</file>
+            <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/exp/MessageExp.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/Client/SignUpJDialog.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/Server/ShowOnlineThread.java</file>
             <file>file:/C:/Users/ChxxxXL/Documents/NetBeansProjects/MyCommunication/src/Client/LoginJDialog.java</file>

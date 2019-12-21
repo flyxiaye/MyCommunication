@@ -171,8 +171,9 @@ public class ClientJFrame extends javax.swing.JFrame {
         int clickTime = evt.getClickCount();
         if (clickTime == 2) {
             String userName = jList1.getSelectedValue();
-            if (userName == null)
+            if (userName == null) {
                 return;
+            }
             //防止重复建立窗体对象
             if (receiver.cfMap.containsKey(userName)) {
                 receiver.cfMap.get(userName).setVisible(true);
@@ -204,6 +205,8 @@ public class ClientJFrame extends javax.swing.JFrame {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    javax.swing.UIManager
+//                            .setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
                     break;
                 }
             }
@@ -235,7 +238,7 @@ public class ClientJFrame extends javax.swing.JFrame {
         } catch (SocketException ex) {
             Logger.getLogger(ClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         //登陆对话框
         LoginJDialog dialog = new LoginJDialog(new javax.swing.JFrame(), true, ClientSocket);
         dialog.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -267,7 +270,7 @@ public class ClientJFrame extends javax.swing.JFrame {
         };
         ScheduledExecutorService service = Executors
                 .newSingleThreadScheduledExecutor();
-        service.scheduleAtFixedRate(runnable, 0, 500, TimeUnit.MILLISECONDS);
+        service.scheduleAtFixedRate(runnable, 0, 600, TimeUnit.MILLISECONDS);
 
     }
 

@@ -148,7 +148,7 @@ public class ServerJFrame extends javax.swing.JFrame {
             };
             ScheduledExecutorService service = Executors
                     .newSingleThreadScheduledExecutor();
-            service.scheduleAtFixedRate(runnable, 1, 1, TimeUnit.SECONDS);
+            service.scheduleAtFixedRate(runnable, 1, 2, TimeUnit.SECONDS);
         } catch (SQLException | ClassNotFoundException ex) {
             Logger.getLogger(ServerJFrame.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SocketException ex) {

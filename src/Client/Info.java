@@ -15,7 +15,7 @@ public class Info {
     public static String userName;      //用户名
     public static int remotePort = 8000;       //服务器的端口号
     public static int localPort = 0;         //本机端口号
-    public static String remoteIP = "47.98.160.254";
-//    public static String remoteIP = "";
+//    public static String remoteIP = "47.98.160.254";
+    public static String remoteIP = "";
     public static InetAddress remoteHost;       //服务器的IP地址
 }

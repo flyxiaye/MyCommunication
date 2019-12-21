@@ -19,24 +19,21 @@ import java.util.logging.Logger;
 public class VisitDB {
 
 //     MySQL 8.0 以上版本 - JDBC 驱动名及数据库 URL
-    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    final String DB_URL = "jdbc:mysql://localhost:3306/userinfo?useSSL=false&serverTimezone=UTC";
-
-    // 数据库的用户名与密码，需要根据自己的设置
-    final String USER = "root";
-    final String PASS = "cxl123";
+//    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+//    final String DB_URL = "jdbc:mysql://localhost:3306/userinfo?useSSL=false&serverTimezone=UTC";
+//
+//    // 数据库的用户名与密码，需要根据自己的设置
+//    final String USER = "root";
+//    final String PASS = "cxl123";
 
     public Connection con;
-//    public Statement stmt;
-//    ResultSet rs;
-//    String sql;
 
     public VisitDB() throws SQLException, ClassNotFoundException {
         //连接打开数据库
-        Class.forName(JDBC_DRIVER);
-        con = DriverManager.getConnection(DB_URL, USER, PASS);
-        //创建Statement对象
-//            stmt = con.createStatement();
+//        Class.forName(JDBC_DRIVER);
+//        con = DriverManager.getConnection(DB_URL, USER, PASS);
+        Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
+        con = DriverManager.getConnection("jdbc:ucanaccess://UserInfo.accdb");
     }
 
     public int matchUser(InetAddress host, int port) {
@@ -76,14 +73,15 @@ public class VisitDB {
     }
 
     public void addInetAddress(int id, InetAddress host, int port) {
-        String ip = "'" + host.getHostAddress() + "'";
-        String sql = "UPDATE userinfo SET ip = " + ip
-                + " , port = " + Integer.toString(port)
-                + " WHERE id = " + Integer.toString(id);
-        Statement stmt;
+        String ip = host.getHostAddress();
+        PreparedStatement stmt;
+        String sql = "update userinfo set ip = ?, port = ? where id = ?";
         try {
-            stmt = this.con.createStatement();
-            stmt.executeUpdate(sql);
+            stmt = con.prepareStatement(sql);
+            stmt.setString(1, ip);
+            stmt.setInt(2, port);
+            stmt.setInt(3, id);
+            stmt.executeUpdate();
             stmt.close();
         } catch (SQLException ex) {
             Logger.getLogger(VisitDB.class.getName()).log(Level.SEVERE, null, ex);
@@ -138,13 +136,17 @@ public class VisitDB {
         }
     }
 
-    public void writeCharRecord(String fromName, MessageExp msg) {
+    public void writeChatRecord(String fromName, MessageExp msg) {
         //写入聊天记录
-        String sql = "INSERT INTO chatrecord (fromname, toname, record) VALUES ('"
-                + fromName + "', '" + msg.getToName() + "', '" + msg.getData() + "');";
+//        String sql = "INSERT INTO chatrecord (fromname, toname, record) VALUES ('"
+//                + fromName + "', '" + msg.getToName() + "', '" + msg.getData() + "');";
+        String sql = "insert into chatrecord (fromname, toname, record) values (?, ?, ?)";
         try {
-            Statement stmt = this.con.createStatement();
-            stmt.executeUpdate(sql);
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, fromName);
+            stmt.setString(2, msg.getToName());
+            stmt.setString(3, msg.getData());
+            stmt.executeUpdate();
             stmt.close();
         } catch (SQLException ex) {
             Logger.getLogger(VisitDB.class.getName()).log(Level.SEVERE, null, ex);
@@ -166,13 +168,15 @@ public class VisitDB {
         } catch (SQLException ex) {
             Logger.getLogger(VisitDB.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         String[] s = msg.getData().split(" ");
-        sql = "INSERT INTO userinfo (name, pwd, shortname) VALUES ('" + userName
-                + "', '" + s[0] + "', '" + s[1] + "')";
+        sql = "INSERT INTO userinfo (name, pwd, shortname) VALUES (?, ?, ?)";
         try {
-            Statement stmt = con.createStatement();
-            stmt.executeUpdate(sql);
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, userName);
+            stmt.setString(2, s[0]);
+            stmt.setString(3, s[1]);
+            stmt.executeUpdate();
             stmt.close();
             return true;
         } catch (SQLException ex) {

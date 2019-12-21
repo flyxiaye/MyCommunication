@@ -162,7 +162,6 @@ public class LoginJDialog extends javax.swing.JDialog {
         }
         try {
             //登陆按钮
-
             InetAddress remoteHost = Info.remoteHost;
             int remotePort = Info.remotePort;
             Info.userName = name;

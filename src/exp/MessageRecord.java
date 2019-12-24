@@ -13,6 +13,8 @@ import java.util.Vector;
  */
 public class MessageRecord extends MessageExp {
 
+    public int recordID = 0;
+    public byte[] recordData;
     public Vector<String[]> vecRecord = new Vector();
 
     public MessageRecord(int id) {

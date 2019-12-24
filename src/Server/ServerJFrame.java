@@ -126,7 +126,7 @@ public class ServerJFrame extends javax.swing.JFrame {
         try {
             //数据库对象
             VisitDB DataBaseStream = new VisitDB();
-            //新建socket对象
+            //新建datagram socket对象
             DatagramSocket socket = new DatagramSocket(8000);
             //服务端数据发送线程
             ServerSendThread sender = new ServerSendThread(socket);

@@ -6,11 +6,13 @@
 package Server;
 
 import exp.MessageExp;
+import exp.MessageRecord;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,6 +62,23 @@ public class ServerSendThread extends Thread {
     }
 
     public void sendMessage(MessageExp msg, InetAddress toIP, int toPort) {
+        if (msg instanceof MessageRecord){
+            while (!this.available); //发送阻塞
+            int maxByte = 20480;
+            byte[] recordDataBuf =  MessageExp.ObjectToByte(msg);
+            for (int k = 0; ; k++){
+                this.dataBuf = Arrays.copyOfRange(dataBuf, k * maxByte, Integer.min((k+1)*maxByte, recordDataBuf.length));
+                packet = new DatagramPacket(dataBuf, dataBuf.length, this.toIP, this.toPort);
+                if (dataBuf.length < maxByte)
+                    break;
+                try {
+                    this.sleep(10);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(ServerSendThread.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            return;
+        }
         while (!this.available); //发送阻塞
         this.dataBuf = MessageExp.ObjectToByte(msg);
         this.toIP = toIP;

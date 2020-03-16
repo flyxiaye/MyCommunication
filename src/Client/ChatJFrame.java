@@ -19,7 +19,6 @@ import javax.swing.JFrame;
 public class ChatJFrame extends javax.swing.JFrame implements Runnable {
 
     ClientSendThread sender = null;
-    ClientReceiveThread receive = null;
     String toName = null;
 
     /**
@@ -28,11 +27,10 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
      * @param sender
      * @param toName
      */
-    public ChatJFrame(ClientSendThread sender, ClientReceiveThread receive, String toName) {
+    public ChatJFrame(ClientSendThread sender, String toName) {
         initComponents();
         this.sender = sender;
         this.toName = toName;
-        this.receive = receive;
         this.setTitle("和" + toName + "的对话");
     }
 

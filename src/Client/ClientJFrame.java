@@ -180,7 +180,7 @@ public class ClientJFrame extends javax.swing.JFrame {
                 receiver.cfMap.get(userName).setVisible(true);
                 return;
             }
-            ChatJFrame chatJFrame = new ChatJFrame(sender, receiver, userName);
+            ChatJFrame chatJFrame = new ChatJFrame(sender, userName);
             receiver.addChatFrame(userName, chatJFrame);
             new Thread(chatJFrame).start();
         }

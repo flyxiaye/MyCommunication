@@ -5,6 +5,9 @@
  */
 package Client;
 
+import MessageDealer.DealerBase;
+import MessageDealer.DealerToolkits;
+import MessageDealer.MessageDealerFactory;
 import MessageGroup.MessageBase;
 import MessageGroup.MessageNoraml;
 import MessageGroup.MessageOnlineUser;
@@ -31,8 +34,8 @@ public class ClientReceiveThread extends Thread {
 
     DatagramSocket socket = null;
     DatagramPacket packet = null;
-    InetAddress toIP = null;
-    int toPort = 0;
+//    InetAddress toIP = null;
+//    int toPort = 0;
     byte[] dataBuf;
     volatile private JList jList1;
     public Map<String, ChatJFrame> cfMap = new HashMap<String, ChatJFrame>();//保存所有对话框
@@ -81,39 +84,47 @@ public class ClientReceiveThread extends Thread {
     public void run() {
         dataBuf = new byte[20480];
         packet = new DatagramPacket(dataBuf, dataBuf.length);
+        DealerToolkits toolkits = new DealerToolkits();
+        toolkits.setClientThread(sender);
+        toolkits.setJComponent(jList1, null);
+        toolkits.setMap(cfMap);
+        MessageDealerFactory mdFactory = new MessageDealerFactory();
         while (true) {
             try {
                 socket.receive(packet);
                 byte[] datas = Arrays.copyOf(packet.getData(), packet.getLength());
                 MessageBase msg = (MessageBase) MessageBase.ByteToObject(datas);
-                if (msg instanceof MessageNoraml) {    //普通消息
-                    MessageNoraml msgNoraml = (MessageNoraml) msg;
-                    String fromName = msg.fromName;
-                    if (cfMap.containsKey(fromName)) {
-                        ChatJFrame tmpFrame = cfMap.get(fromName);
-                        tmpFrame.addMessage(msgNoraml);
-                        tmpFrame.setVisible(true);
-                    } else {
-                        //弹出窗口
-                        ChatJFrame chatJFrame = new ChatJFrame(sender, this, fromName);
-                        this.addChatFrame(fromName, chatJFrame);
-                        new Thread(chatJFrame).start();
-                        chatJFrame.addMessage(msgNoraml);
-                    }
-                } else if (msg instanceof MessageOnlineUser) {   //显示在线用户列表信息
-                    MessageOnlineUser msgOnlineUser = (MessageOnlineUser) msg;
-                    DefaultListModel lm = (DefaultListModel) this.jList1.getModel();
-                    lm.clear();
-                    for (String str : msgOnlineUser.users) {
-                        if (!str.equals(Info.userName)) {
-                            lm.addElement(str);
-                        }
-                    }
-                } else if (msg instanceof MessageRecord) {  //聊天记录
-                    MessageRecord msgR = (MessageRecord) msg;
-                    new Thread(new ChatRecordJDialog(
-                            new JFrame(), false, msgR.toName, msgR)).start();
-                }
+                DealerBase dealer = mdFactory.createrDealer(msg);
+                dealer.clientDealer(msg, toolkits);
+                
+//                if (msg instanceof MessageNoraml) {    //普通消息
+//                    MessageNoraml msgNoraml = (MessageNoraml) msg;
+//                    String fromName = msg.fromName;
+//                    if (cfMap.containsKey(fromName)) {
+//                        ChatJFrame tmpFrame = cfMap.get(fromName);
+//                        tmpFrame.addMessage(msgNoraml);
+//                        tmpFrame.setVisible(true);
+//                    } else {
+//                        //弹出窗口
+//                        ChatJFrame chatJFrame = new ChatJFrame(sender, fromName);
+//                        this.addChatFrame(fromName, chatJFrame);
+//                        new Thread(chatJFrame).start();
+//                        chatJFrame.addMessage(msgNoraml);
+//                    }
+//                } else if (msg instanceof MessageOnlineUser) {   //显示在线用户列表信息
+//                    MessageOnlineUser msgOnlineUser = (MessageOnlineUser) msg;
+//                    DefaultListModel lm = (DefaultListModel) this.jList1.getModel();
+//                    lm.clear();
+//                    for (String str : msgOnlineUser.users) {
+//                        if (!str.equals(Info.userName)) {
+//                            lm.addElement(str);
+//                        }
+//                    }
+//                } else if (msg instanceof MessageRecord) {  //聊天记录
+//                    MessageRecord msgR = (MessageRecord) msg;
+//                    new Thread(new ChatRecordJDialog(
+//                            new JFrame(), false, msgR.toName, msgR)).start();
+//                }
             } catch (IOException ex) {
                 Logger.getLogger(ClientReceiveThread.class.getName()).log(Level.SEVERE, null, ex);
             }

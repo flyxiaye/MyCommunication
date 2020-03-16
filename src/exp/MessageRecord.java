@@ -5,38 +5,32 @@
  */
 package exp;
 
+import DataBase.ChatRecord;
 import java.util.Vector;
 
 /**
  *
  * @author ChxxxXL
  */
-public class MessageRecord extends MessageExp {
+public class MessageRecord extends MessageBase {
 
     public int recordID = 0;
     public byte[] recordData;
-    public Vector<String[]> vecRecord = new Vector();
+    public String toName;
+    public Vector vecRecord = new Vector();
 
-    public MessageRecord(int id) {
-        super(id);
+    public MessageRecord() {
+        super(MessageBase.RECORD_MESSAGE);
     }
 
-    public MessageRecord(int id, String[] obj) {
-        super(id);
-        vecRecord.addElement(obj);
+    public MessageRecord(String fromName, String toName, Vector vec) {
+        super(MessageBase.RECORD_MESSAGE, fromName);
+        vecRecord = vec;
+        this.toName = toName;
     }
 
-    public MessageRecord(int id, String date, String fromName, String data) {
-        super(id);
-        vecRecord.addElement(new String[]{date, fromName, data});
-    }
-
-    public void addRecord(String date, String fromName, String data) {
-        vecRecord.addElement(new String[]{date, fromName, data});
-    }
-
-    public void addRecord(String[] obj) {
-        vecRecord.addElement(obj);
+    public void addRecord(ChatRecord cr) {
+        vecRecord.addElement(cr);
     }
 
 }

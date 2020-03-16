@@ -5,7 +5,7 @@
  */
 package Server;
 
-import exp.MessageExp;
+import exp.MessageBase;
 import exp.MessageRecord;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -61,11 +61,11 @@ public class ServerSendThread extends Thread {
 
     }
 
-    public void sendMessage(MessageExp msg, InetAddress toIP, int toPort) {
+    public void sendMessage(MessageBase msg, InetAddress toIP, int toPort) {
         if (msg instanceof MessageRecord){
             while (!this.available); //发送阻塞
             int maxByte = 20480;
-            byte[] recordDataBuf =  MessageExp.ObjectToByte(msg);
+            byte[] recordDataBuf =  MessageBase.ObjectToByte(msg);
             for (int k = 0; ; k++){
                 this.dataBuf = Arrays.copyOfRange(dataBuf, k * maxByte, Integer.min((k+1)*maxByte, recordDataBuf.length));
                 packet = new DatagramPacket(dataBuf, dataBuf.length, this.toIP, this.toPort);
@@ -80,7 +80,7 @@ public class ServerSendThread extends Thread {
             return;
         }
         while (!this.available); //发送阻塞
-        this.dataBuf = MessageExp.ObjectToByte(msg);
+        this.dataBuf = MessageBase.ObjectToByte(msg);
         this.toIP = toIP;
         this.toPort = toPort;
 //        System.out.println(msg.getId());

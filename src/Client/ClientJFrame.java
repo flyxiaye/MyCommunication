@@ -5,7 +5,8 @@
  */
 package Client;
 
-import exp.MessageExp;
+import exp.MessageBase;
+import exp.MessageHeart;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -265,7 +266,7 @@ public class ClientJFrame extends javax.swing.JFrame {
         jFrame.sender.start();
         //心跳包发送线程
         Runnable runnable = () -> {
-            MessageExp msg = new MessageExp(MessageExp.HEART_MESSAGE, Info.userName);
+            MessageBase msg = new MessageHeart(Info.userName);
             jFrame.sender.sendMessage(msg);
         };
         ScheduledExecutorService service = Executors

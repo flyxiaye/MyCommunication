@@ -1,11 +1,25 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package exp;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MessageExp implements Serializable{
-    
+/**
+ *
+ * @author ChxxxXL
+ */
+
+public abstract class MessageBase implements Serializable{
     private static final long serialVersionUID = 16418942341264L; 
     public static final int NORMAL_MESSAGE = 0;
     public static final int USER_MESSAGE = 1;
@@ -13,24 +27,15 @@ public class MessageExp implements Serializable{
     public static final int LOGIN_MESSAGE = 3;
     public static final int SINGUP_MESSAGE = 4;
     public static final int RECORD_MESSAGE = 5;
-
-    private int id;//0普通消息 //1在线用户列表 //2心跳包 //3登陆信息 //4注册信息 //5聊天记录信息
-    private String toName;
-    private String data;
-
-    public MessageExp(int id, String toName, String data) {
-        this.setId(id);
-        this.setToName(toName);
-        this.setData(data);
+    
+    public int id;
+    public String fromName;
+    public MessageBase(int id, String fromName){
+        this.id = id;
+        this.fromName = fromName;
     }
-
-    public MessageExp(int id, String data){
-        this.setData(data);
-        this.setId(id);
-    }
-
-    public MessageExp(int id) {
-        this.setId(id);
+    public MessageBase(int id){
+        this.id = id;
     }
     
     public synchronized static Object ByteToObject(byte[] bytes) {
@@ -43,15 +48,13 @@ public class MessageExp implements Serializable{
             obj = oi.readObject();
             bi.close();
             oi.close();
-        } catch (IOException ex) {
-            Logger.getLogger(MessageExp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(MessageExp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         } finally {
             try {
                 oi.close();
             } catch (IOException ex) {
-                Logger.getLogger(MessageExp.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
             }
         }
         return obj;
@@ -69,39 +72,20 @@ public class MessageExp implements Serializable{
             bo.close();
             oo.close();
         } catch (IOException ex) {
-            Logger.getLogger(MessageExp.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         } finally {
             try {
                 oo.close();
             } catch (IOException ex) {
-                Logger.getLogger(MessageExp.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
             }
         }
         return bytes;
     }
-
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getToName() {
-        return toName;
-    }
-
-    public void setToName(String toName) {
-        this.toName = toName;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
-    }
 }
+
+
+
+
+
+

@@ -5,6 +5,7 @@
  */
 package Client;
 
+import DataBase.ChatRecord;
 import exp.MessageRecord;
 import javax.swing.JFrame;
 
@@ -126,9 +127,10 @@ public class ChatRecordJDialog extends javax.swing.JDialog implements Runnable{
     public void run() {
         setVisible(true);
         jLabel1.setText("和" + fromName + "的聊天记录");
-        for (String[] s : msgRecord.vecRecord)
+        for (Object o : msgRecord.vecRecord)
         {
-            jTextArea1.append(s[1] + "  " + s[0] + ":\n  " + s[2] + "\n");
+            ChatRecord cr = (ChatRecord)o;
+            jTextArea1.append(cr.toName + "  " + cr.date + ":\n  " + cr.chatData + "\n");
         }
 // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

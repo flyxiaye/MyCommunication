@@ -49,7 +49,7 @@ class SocketThread implements Runnable{
             {
                 
             }
-            connectedClient.close();
+//            connectedClient.close();
 //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         } catch (IOException ex) {
             Logger.getLogger(SocketThread.class.getName()).log(Level.SEVERE, null, ex);

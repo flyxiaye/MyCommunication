@@ -5,7 +5,8 @@
  */
 package Client;
 
-import exp.MessageExp;
+import exp.MessageBase;
+import exp.MessageLoginInfo;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -165,9 +166,10 @@ public class LoginJDialog extends javax.swing.JDialog {
             InetAddress remoteHost = Info.remoteHost;
             int remotePort = Info.remotePort;
             Info.userName = name;
-            String str = Info.userName + " " + pwd;
-            MessageExp msg = new MessageExp(MessageExp.LOGIN_MESSAGE, str);
-            byte[] dataBuf = MessageExp.ObjectToByte(msg);
+//            String str = Info.userName + " " + pwd;
+//            MessageExp msg = new MessageExp(MessageExp.LOGIN_MESSAGE, str);
+            MessageBase msg = new MessageLoginInfo(Info.userName, pwd);
+            byte[] dataBuf = MessageBase.ObjectToByte(msg);
             DatagramPacket clientPacket = new DatagramPacket(
                     dataBuf, dataBuf.length, remoteHost, remotePort);
             clientSocket.send(clientPacket);
@@ -175,8 +177,8 @@ public class LoginJDialog extends javax.swing.JDialog {
             clientPacket = new DatagramPacket(dataBuf, 512);
             clientSocket.receive(clientPacket);
             //接收成功
-            msg = (MessageExp) MessageExp.ByteToObject(dataBuf);
-            String rec = msg.getData().trim();
+            msg = (MessageBase) MessageBase.ByteToObject(dataBuf);
+            String rec = msg.fromName.trim();
             if (rec.equals("true")) { //登陆成功
                 this.dispose();
             } else if (rec.equals("fasle")) {

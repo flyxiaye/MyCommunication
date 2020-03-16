@@ -5,7 +5,8 @@
  */
 package Client;
 
-import exp.MessageExp;
+import exp.MessageBase;
+import exp.MessageSignUpInfo;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -157,9 +158,8 @@ public class SignUpJDialog extends javax.swing.JDialog implements Runnable {
             jLabel5.setText("用户简称不能含有空格！");
             return;
         }
-        MessageExp msg = new MessageExp(MessageExp.SINGUP_MESSAGE, userName,
-                pwd + " " + shortName);
-        byte[] dataBuf = MessageExp.ObjectToByte(msg);
+        MessageBase msg = new MessageSignUpInfo(shortName, pwd);
+        byte[] dataBuf = MessageBase.ObjectToByte(msg);
         DatagramPacket packet = new DatagramPacket(dataBuf, dataBuf.length, Info.remoteHost, Info.remotePort);
         try {
             socket.send(packet);
@@ -171,15 +171,15 @@ public class SignUpJDialog extends javax.swing.JDialog implements Runnable {
         try {
             while (true) {
                 socket.receive(packet);
-                msg = (MessageExp) MessageExp.ByteToObject(dataBuf);
-                if (msg.getId() == MessageExp.SINGUP_MESSAGE) {
+                msg = (MessageBase) MessageBase.ByteToObject(dataBuf);
+                if (msg.id== MessageBase.SINGUP_MESSAGE) {
                     break;
                 }
             }
         } catch (IOException ex) {
             Logger.getLogger(SignUpJDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if ("true".equals(msg.getData())) {
+        if ("true".equals(msg.fromName)) {
             jLabel5.setText("注册成功！");
         } else {
             jLabel5.setText("注册失败！");

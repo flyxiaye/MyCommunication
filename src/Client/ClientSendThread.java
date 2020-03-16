@@ -6,7 +6,7 @@
 package Client;
 
 import Server.ServerSendThread;
-import exp.MessageExp;
+import exp.MessageBase;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -69,9 +69,9 @@ public class ClientSendThread extends Thread {
 
     }
 
-    public void sendMessage(MessageExp msg, InetAddress toIP, int toPort) {
+    public void sendMessage(MessageBase msg, InetAddress toIP, int toPort) {
         while (!this.available);//发送阻塞
-        this.dataBuf = MessageExp.ObjectToByte(msg);
+        this.dataBuf = MessageBase.ObjectToByte(msg);
         this.toIP = toIP;
         this.toPort = toPort;
         packet = new DatagramPacket(dataBuf, dataBuf.length, this.toIP, this.toPort);
@@ -81,9 +81,9 @@ public class ClientSendThread extends Thread {
         }
     }
 
-    public void sendMessage(MessageExp msg) {
+    public void sendMessage(MessageBase msg) {
         while (!this.available);//发送阻塞
-        this.dataBuf = MessageExp.ObjectToByte(msg);
+        this.dataBuf = MessageBase.ObjectToByte(msg);
         packet = new DatagramPacket(dataBuf, dataBuf.length, this.toIP, this.toPort);
         this.available = false;
         synchronized (this) {

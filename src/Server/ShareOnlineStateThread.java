@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,7 +24,7 @@ import java.util.logging.Logger;
  */
 public class ShareOnlineStateThread extends Thread {
 
-    public MessageExp msg = null;
+    public MessageOnlineUser msg = null;
     private VisitDB DataBaseStream = null;
 
     public ShareOnlineStateThread(VisitDB DataBaseStream) {
@@ -37,15 +38,15 @@ public class ShareOnlineStateThread extends Thread {
                 Statement stmt = this.DataBaseStream.con.createStatement();
                 String sql = "SELECT name FROM userinfo WHERE state = 1";
                 //收集在线用户列表
-                String onlineUser = "";
+                Vector<String>onlineUser = new Vector<>();
                 ResultSet rs = stmt.executeQuery(sql);
                 while (rs.next()) {
-                    onlineUser += rs.getString("name") + " ";
+                    onlineUser.addElement(rs.getString("name"));
                 }
                 if (msg == null) {
-                    msg = new MessageExp(MessageExp.USER_MESSAGE, onlineUser);
+                    msg = new MessageOnlineUser(onlineUser);
                 } else {
-                    msg.setData(onlineUser);
+                    msg.users = onlineUser;
                 }
                 sleep(1000);
             } catch (SQLException ex) {

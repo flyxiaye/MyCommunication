@@ -5,7 +5,7 @@
  */
 package Client;
 
-import exp.MessageExp;
+import exp.*;
 import exp.MessageRecord;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -83,39 +83,39 @@ public class ClientReceiveThread extends Thread {
             try {
                 socket.receive(packet);
                 byte[] datas = Arrays.copyOf(packet.getData(), packet.getLength());
-                MessageExp msg = (MessageExp) MessageExp.ByteToObject(datas);
-                switch (msg.getId()) {
-                    case MessageExp.NORMAL_MESSAGE: {    //普通消息
-                        String fromName = msg.getToName();
+                MessageBase msg = (MessageBase) MessageBase.ByteToObject(datas);
+                switch (msg.id) {
+                    case MessageBase.NORMAL_MESSAGE: {    //普通消息
+                        MessageNoraml msgNoraml = (MessageNoraml)msg;
+                        String fromName = msg.fromName;
                         if (cfMap.containsKey(fromName)) {
                             ChatJFrame tmpFrame = cfMap.get(fromName);
-                            tmpFrame.addMessage(msg);
+                            tmpFrame.addMessage(msgNoraml);
                             tmpFrame.setVisible(true);
                         } else {
                             //弹出窗口
                             ChatJFrame chatJFrame = new ChatJFrame(sender, this, fromName);
                             this.addChatFrame(fromName, chatJFrame);
                             new Thread(chatJFrame).start();
-                            chatJFrame.addMessage(msg);
+                            chatJFrame.addMessage(msgNoraml);
                         }
                     }
                     break;
-                    case MessageExp.USER_MESSAGE: {   //显示在线用户列表信息
-                        String onlineUser = msg.getData();
-                        String s[] = onlineUser.split(" ");
+                    case MessageBase.USER_MESSAGE: {   //显示在线用户列表信息
+                        MessageOnlineUser msgOnlineUser = (MessageOnlineUser)msg;
                         DefaultListModel lm = (DefaultListModel) this.jList1.getModel();
                         lm.clear();
-                        for (String str : s) {
+                        for (String str : msgOnlineUser.users) {
                             if (!str.equals(Info.userName)) {
                                 lm.addElement(str);
                             }
                         }
                     }
                     break;
-                    case MessageExp.RECORD_MESSAGE: {  //聊天记录
+                    case MessageBase.RECORD_MESSAGE: {  //聊天记录
                         MessageRecord msgR = (MessageRecord) msg;
                         new Thread(new ChatRecordJDialog(
-                                new JFrame(), false, msgR.getToName(), msgR)).start();
+                                new JFrame(), false, msgR.fromName, msgR)).start();
                     }
                     break;
                     default:

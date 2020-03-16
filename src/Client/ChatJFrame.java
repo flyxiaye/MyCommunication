@@ -5,7 +5,9 @@
  */
 package Client;
 
-import exp.MessageExp;
+import exp.MessageBase;
+import exp.MessageNoraml;
+import exp.MessageRecord;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import javax.swing.JFrame;
@@ -148,9 +150,8 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
             return;
         }
         jTextArea1.setText("");
-        MessageExp msg = new MessageExp(MessageExp.NORMAL_MESSAGE, Info.userName, sendMsg);
+        MessageNoraml msg = new MessageNoraml(Info.userName, toName, sendMsg);
         this.addMessage(msg);
-        msg.setToName(toName);
         sender.sendMessage(msg);
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -168,8 +169,8 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         //聊天记录
-        MessageExp msg = new MessageExp(MessageExp.RECORD_MESSAGE);
-        msg.setToName(toName);
+        MessageRecord msg = new MessageRecord();
+        msg.toName = toName;
         sender.sendMessage(msg);
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -228,13 +229,14 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
 
     }
 
-    public void addMessage(MessageExp msg) {
+    public void addMessage(MessageNoraml msg) {
         //显示消息
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date(System.currentTimeMillis());
         String dateString = formatter.format(date);
-        this.jTextArea3.append(msg.getToName() + "  " + dateString + ":\n   " + msg.getData() + "\n");
+        this.jTextArea3.append(msg.toName + "  " + dateString + ":\n   " + msg.data + "\n");
         this.jTextArea3.setCaretPosition(jTextArea3.getDocument().getLength());
     }
+    
 
 }

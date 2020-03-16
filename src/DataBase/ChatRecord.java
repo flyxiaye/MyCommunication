@@ -6,24 +6,29 @@
 package DataBase;
 
 import com.mysql.cj.protocol.MessageReader;
-import exp.MessageNoraml;
-import exp.MessageRecord;
+import MessageGroup.MessageNoraml;
+import MessageGroup.MessageRecord;
+import java.io.Serializable;
 
 /**
  *
  * @author ChxxxXL
  */
-public class ChatRecord {
+public class ChatRecord implements Serializable {
+
+    private static final long serialVersionUID = 16438942341264L;
     public String fromName;
     public String toName;
-    public String chatData ;
+    public String chatData;
     public String date;
-    public ChatRecord(String fromName, String toName, String data){
+
+    public ChatRecord(String fromName, String toName, String data) {
         this.fromName = fromName;
         this.toName = toName;
         this.chatData = data;
     }
-    public ChatRecord(MessageNoraml msg){
+
+    public ChatRecord(MessageNoraml msg) {
         this(msg.fromName, msg.toName, msg.data);
     }
 }

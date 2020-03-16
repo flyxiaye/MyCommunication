@@ -5,8 +5,8 @@
  */
 package Client;
 
-import exp.MessageBase;
-import exp.MessageSignUpInfo;
+import MessageGroup.MessageBase;
+import MessageGroup.MessageSignUpInfo;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -158,7 +158,7 @@ public class SignUpJDialog extends javax.swing.JDialog implements Runnable {
             jLabel5.setText("用户简称不能含有空格！");
             return;
         }
-        MessageBase msg = new MessageSignUpInfo(shortName, pwd);
+        MessageBase msg = new MessageSignUpInfo(userName, pwd);
         byte[] dataBuf = MessageBase.ObjectToByte(msg);
         DatagramPacket packet = new DatagramPacket(dataBuf, dataBuf.length, Info.remoteHost, Info.remotePort);
         try {
@@ -172,7 +172,7 @@ public class SignUpJDialog extends javax.swing.JDialog implements Runnable {
             while (true) {
                 socket.receive(packet);
                 msg = (MessageBase) MessageBase.ByteToObject(dataBuf);
-                if (msg.id== MessageBase.SINGUP_MESSAGE) {
+                if (msg instanceof MessageSignUpInfo) {
                     break;
                 }
             }

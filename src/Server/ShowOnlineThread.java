@@ -5,7 +5,7 @@
  */
 package Server;
 
-import exp.VisitDB;
+import DataBase.VisitDB;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;

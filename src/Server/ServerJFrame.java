@@ -5,7 +5,7 @@
  */
 package Server;
 
-import exp.VisitDB;
+import DataBase.VisitDB;
 import java.sql.Statement;
 import java.net.DatagramSocket;
 import java.net.SocketException;

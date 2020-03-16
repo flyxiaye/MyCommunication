@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package exp;
+package MessageGroup;
 
 /**
  *
@@ -15,7 +15,7 @@ public class MessageNoraml extends MessageBase {
     public String toName;
 
     public MessageNoraml(String fromName, String toName, String data) {
-        super(MessageBase.NORMAL_MESSAGE, fromName);
+        super(fromName);
         this.toName = toName;
         this.data = data;
     }

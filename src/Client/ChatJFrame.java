@@ -5,9 +5,9 @@
  */
 package Client;
 
-import exp.MessageBase;
-import exp.MessageNoraml;
-import exp.MessageRecord;
+import MessageGroup.MessageBase;
+import MessageGroup.MessageNoraml;
+import MessageGroup.MessageRecord;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import javax.swing.JFrame;
@@ -171,7 +171,10 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
         //聊天记录
         MessageRecord msg = new MessageRecord();
         msg.toName = toName;
+        msg.fromName = Info.userName;
         sender.sendMessage(msg);
+        byte[] data = MessageBase.ObjectToByte(msg);
+        System.out.println(data.length);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
@@ -234,7 +237,7 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date(System.currentTimeMillis());
         String dateString = formatter.format(date);
-        this.jTextArea3.append(msg.toName + "  " + dateString + ":\n   " + msg.data + "\n");
+        this.jTextArea3.append(msg.fromName + "  " + dateString + ":\n   " + msg.data + "\n");
         this.jTextArea3.setCaretPosition(jTextArea3.getDocument().getLength());
     }
     

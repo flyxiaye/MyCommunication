@@ -3,23 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package exp;
+package MessageGroup;
 
 /**
  *
  * @author ChxxxXL
  */
-public class MessageLoginInfo extends MessageBase {
+public class MessageSignUpInfo extends MessageBase {
     
     public String passwd;
 
-    public MessageLoginInfo(String fromName, String passwd) {
-        super(MessageBase.LOGIN_MESSAGE, fromName);
+    public MessageSignUpInfo(String fromName, String passwd) {
+        super(fromName);
         this.passwd = passwd;
     }
     
-    public MessageLoginInfo(String fromName){
-        super(MessageBase.LOGIN_MESSAGE, fromName);
+     public MessageSignUpInfo(String fromName) {
+        super(fromName);
     }
+    
     
 }

@@ -5,8 +5,8 @@
  */
 package Client;
 
-import exp.MessageBase;
-import exp.MessageHeart;
+import MessageGroup.MessageBase;
+import MessageGroup.MessageHeart;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;

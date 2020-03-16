@@ -3,16 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package exp;
+package MessageGroup;
+
+import java.util.Vector;
 
 /**
  *
  * @author ChxxxXL
  */
-public class MessageHeart extends MessageBase {
-    
-    public MessageHeart(String fromName) {
-        super(MessageBase.HEART_MESSAGE, fromName);
+public class MessageOnlineUser extends MessageBase {
+    public Vector<String> users;
+    public MessageOnlineUser(Vector users) {
+        this.users = users;
     }
     
 }

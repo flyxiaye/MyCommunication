@@ -5,8 +5,8 @@
  */
 package Server;
 
-import exp.MessageBase;
-import exp.MessageRecord;
+import MessageGroup.MessageBase;
+import MessageGroup.MessageRecord;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -62,30 +62,10 @@ public class ServerSendThread extends Thread {
     }
 
     public void sendMessage(MessageBase msg, InetAddress toIP, int toPort) {
-        if (msg instanceof MessageRecord){
-            while (!this.available); //发送阻塞
-            int maxByte = 20480;
-            byte[] recordDataBuf =  MessageBase.ObjectToByte(msg);
-            for (int k = 0; ; k++){
-                this.dataBuf = Arrays.copyOfRange(dataBuf, k * maxByte, Integer.min((k+1)*maxByte, recordDataBuf.length));
-                packet = new DatagramPacket(dataBuf, dataBuf.length, this.toIP, this.toPort);
-                if (dataBuf.length < maxByte)
-                    break;
-                try {
-                    this.sleep(10);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ServerSendThread.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            return;
-        }
         while (!this.available); //发送阻塞
         this.dataBuf = MessageBase.ObjectToByte(msg);
         this.toIP = toIP;
         this.toPort = toPort;
-//        System.out.println(msg.getId());
-//        System.out.println(msg.getToName());
-//        System.out.println(msg.getData());
         packet = new DatagramPacket(dataBuf, dataBuf.length, this.toIP, this.toPort);
         this.available = true;
         synchronized (this) {

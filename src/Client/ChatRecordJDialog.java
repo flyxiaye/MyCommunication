@@ -6,7 +6,7 @@
 package Client;
 
 import DataBase.ChatRecord;
-import exp.MessageRecord;
+import MessageGroup.MessageRecord;
 import javax.swing.JFrame;
 
 /**
@@ -15,7 +15,7 @@ import javax.swing.JFrame;
  */
 public class ChatRecordJDialog extends javax.swing.JDialog implements Runnable{
 
-    String fromName;
+    String toName;
     MessageRecord msgRecord;
 
     /**
@@ -26,7 +26,7 @@ public class ChatRecordJDialog extends javax.swing.JDialog implements Runnable{
         super(parent, modal);
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.fromName = fromName;
+        this.toName = fromName;
         this.msgRecord = msgR;
     }
 
@@ -126,11 +126,11 @@ public class ChatRecordJDialog extends javax.swing.JDialog implements Runnable{
     @Override
     public void run() {
         setVisible(true);
-        jLabel1.setText("和" + fromName + "的聊天记录");
+        jLabel1.setText("和" + toName + "的聊天记录");
         for (Object o : msgRecord.vecRecord)
         {
             ChatRecord cr = (ChatRecord)o;
-            jTextArea1.append(cr.toName + "  " + cr.date + ":\n  " + cr.chatData + "\n");
+            jTextArea1.append(cr.fromName + "  " + cr.date + ":\n  " + cr.chatData + "\n");
         }
 // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

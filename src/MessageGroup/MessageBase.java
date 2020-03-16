@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package exp;
+package MessageGroup;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,22 +21,12 @@ import java.util.logging.Logger;
 
 public abstract class MessageBase implements Serializable{
     private static final long serialVersionUID = 16418942341264L; 
-    public static final int NORMAL_MESSAGE = 0;
-    public static final int USER_MESSAGE = 1;
-    public static final int HEART_MESSAGE = 2;
-    public static final int LOGIN_MESSAGE = 3;
-    public static final int SINGUP_MESSAGE = 4;
-    public static final int RECORD_MESSAGE = 5;
     
-    public int id;
     public String fromName;
-    public MessageBase(int id, String fromName){
-        this.id = id;
+    public MessageBase(String fromName){
         this.fromName = fromName;
     }
-    public MessageBase(int id){
-        this.id = id;
-    }
+    public MessageBase(){ }
     
     public synchronized static Object ByteToObject(byte[] bytes) {
         ObjectInputStream oi = null;

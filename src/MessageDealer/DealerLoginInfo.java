@@ -40,7 +40,6 @@ public class DealerLoginInfo extends DealerBase {
         }
         MessageBase message = new MessageLoginInfo(ack);
         toolkits.serverSender.sendMessage(message, toolkits.toIP, toolkits.toPort);
-        System.out.println(toolkits.toIP+" " +toolkits.toPort);
     }
 
     @Override

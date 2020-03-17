@@ -23,8 +23,6 @@ import javax.swing.JTextArea;
  * @author ChxxxXL
  */
 public class DealerToolkits {
-//    DatagramSocket socket = null;
-//    DatagramPacket packet = null;
 
     InetAddress toIP = null;
     int toPort = 0;
@@ -37,33 +35,33 @@ public class DealerToolkits {
     JList jList1 = null;
     Map<String, ChatJFrame> cfMap = null;//保存所有对话框
 
-    public void setAddress(InetAddress ip, int port){
+    public void setAddress(InetAddress ip, int port) {
         this.toIP = ip;
-        this.toPort = toPort;
+        this.toPort = port;
     }
-    
-    public void setServerThread(ServerSendThread serverSender){
+
+    public void setServerThread(ServerSendThread serverSender) {
         this.serverSender = serverSender;
     }
-    
-    public void setClientThread(ClientSendThread clientSendThread){
+
+    public void setClientThread(ClientSendThread clientSendThread) {
         this.clientSender = clientSendThread;
     }
-    
-    public void setDataBase(VisitDB db){
+
+    public void setDataBase(VisitDB db) {
         this.DataBaseStream = db;
     }
-    
-    public void setJComponent(JList jList, JTextArea jta){
+
+    public void setJComponent(JList jList, JTextArea jta) {
         this.jList1 = jList;
         this.jTextArea1 = jta;
     }
-    
-    public void setMap(Map map){
+
+    public void setMap(Map map) {
         this.cfMap = map;
     }
-    
-    public void setShareOnlineThread(ShareOnlineStateThread th){
+
+    public void setShareOnlineThread(ShareOnlineStateThread th) {
         this.shareOnlineStateThread = th;
     }
 }

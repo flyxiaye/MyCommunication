@@ -7,7 +7,6 @@ package Client;
 
 import Server.ServerSendThread;
 import MessageGroup.MessageBase;
-import MessageGroup.MessageRecord;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

@@ -7,12 +7,7 @@ package Client;
 
 import MessageGroup.MessageBase;
 import MessageGroup.MessageLoginInfo;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import Notifier.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,17 +15,19 @@ import java.util.logging.Logger;
  *
  * @author ChxxxXL
  */
-public class LoginJDialog extends javax.swing.JDialog {
+public class LoginJDialog extends javax.swing.JDialog implements Observable {
 
-    DatagramSocket clientSocket;
+    private final ClientSendThread sender;
+    private MessageLoginInfo msgInfo = null;
 
     /**
      * Creates new form LoginJDialog
      */
-    public LoginJDialog(java.awt.Frame parent, boolean modal, DatagramSocket clientSocket) {
+    public LoginJDialog(java.awt.Frame parent, boolean modal, ClientSendThread sender) {
         super(parent, modal);
         initComponents();
-        this.clientSocket = clientSocket;
+        this.sender = sender;
+        ClientReceiveThread.getClientReceiveThread().add(this);
     }
 
     /**
@@ -161,39 +158,28 @@ public class LoginJDialog extends javax.swing.JDialog {
             this.jLabel5.setText("密码不能为空！");
             return;
         }
-        try {
-            //登陆按钮
-            InetAddress remoteHost = Info.remoteHost;
-            int remotePort = Info.remotePort;
-            Info.userName = name;
-//            String str = Info.userName + " " + pwd;
-//            MessageExp msg = new MessageExp(MessageExp.LOGIN_MESSAGE, str);
-            MessageBase msg = new MessageLoginInfo(Info.userName, pwd);
-            byte[] dataBuf = MessageBase.ObjectToByte(msg);
-            DatagramPacket clientPacket = new DatagramPacket(
-                    dataBuf, dataBuf.length, remoteHost, remotePort);
-            clientSocket.send(clientPacket);
-            dataBuf = new byte[512];
-            clientPacket = new DatagramPacket(dataBuf, 512);
-            clientSocket.receive(clientPacket);
-            //接收成功
-            msg = (MessageBase) MessageBase.ByteToObject(dataBuf);
-            String rec = msg.fromName.trim();
-            if (rec.equals("true")) { //登陆成功
-                this.dispose();
-            } else if (rec.equals("fasle")) {
-                this.jLabel5.setText("密码错误！");
-                this.jPasswordField1.setText("");
-            } else {
-                this.jLabel5.setText(rec);
-                this.jPasswordField1.setText("");
+        //登陆按钮
+        Info.userName = name;
+        MessageBase msg = new MessageLoginInfo(Info.userName, pwd);
+        sender.sendMessage(msg);
+        synchronized (this){
+            try {
+                wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(LoginJDialog.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (UnknownHostException ex) {
-            Logger.getLogger(LoginJDialog.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SocketException ex) {
-            Logger.getLogger(LoginJDialog.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(LoginJDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
+//接收成功
+        msg = msgInfo;
+        String rec = msg.fromName.trim();
+        if (rec.equals("true")) { //登陆成功
+            this.dispose();
+        } else if (rec.equals("fasle")) {
+            this.jLabel5.setText("密码错误！");
+            this.jPasswordField1.setText("");
+        } else {
+            this.jLabel5.setText(rec);
+            this.jPasswordField1.setText("");
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -212,7 +198,9 @@ public class LoginJDialog extends javax.swing.JDialog {
     private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
         // TODO add your handling code here:
         //注册账号按钮
-        new Thread(new SignUpJDialog(new javax.swing.JFrame(), true, clientSocket)).start();
+        SignUpJDialog sujd = new SignUpJDialog(new javax.swing.JFrame(), true, sender);
+        ClientReceiveThread.getClientReceiveThread().add(sujd);
+        new Thread(sujd).start();
     }//GEN-LAST:event_jLabel7MouseClicked
 
     /**
@@ -268,4 +256,14 @@ public class LoginJDialog extends javax.swing.JDialog {
     private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void update(MessageBase msg) {
+        if (msg instanceof MessageLoginInfo) {
+            msgInfo = (MessageLoginInfo) msg;
+            synchronized(this){
+                notify();
+            }
+        }
+    }
 }

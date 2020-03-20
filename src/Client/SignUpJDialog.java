@@ -7,9 +7,7 @@ package Client;
 
 import MessageGroup.MessageBase;
 import MessageGroup.MessageSignUpInfo;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
+import Notifier.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -18,18 +16,19 @@ import javax.swing.JFrame;
  *
  * @author ChxxxXL
  */
-public class SignUpJDialog extends javax.swing.JDialog implements Runnable {
+public class SignUpJDialog extends javax.swing.JDialog implements Runnable, Observable {
     
-    DatagramSocket socket;
+    private ClientSendThread sender ;
+    private MessageSignUpInfo msgInfo;
 
     /**
      * Creates new form SignUpJDialog
      */
-    public SignUpJDialog(java.awt.Frame parent, boolean modal, DatagramSocket socket) {
+    public SignUpJDialog(java.awt.Frame parent, boolean modal,  ClientSendThread sender) {
         super(parent, modal);
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.socket = socket;
+        this.sender = sender;
     }
 
     /**
@@ -159,26 +158,16 @@ public class SignUpJDialog extends javax.swing.JDialog implements Runnable {
             return;
         }
         MessageBase msg = new MessageSignUpInfo(userName, pwd);
-        byte[] dataBuf = MessageBase.ObjectToByte(msg);
-        DatagramPacket packet = new DatagramPacket(dataBuf, dataBuf.length, Info.remoteHost, Info.remotePort);
-        try {
-            socket.send(packet);
-        } catch (IOException ex) {
-            Logger.getLogger(SignUpJDialog.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        dataBuf = new byte[512];
-        packet = new DatagramPacket(dataBuf, dataBuf.length);
-        try {
-            while (true) {
-                socket.receive(packet);
-                msg = (MessageBase) MessageBase.ByteToObject(dataBuf);
-                if (msg instanceof MessageSignUpInfo) {
-                    break;
-                }
+        sender.sendMessage(msg);
+        synchronized(this) {
+            try {
+                wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(SignUpJDialog.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (IOException ex) {
-            Logger.getLogger(SignUpJDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //接收成功
+        msg = msgInfo;
         if ("true".equals(msg.fromName)) {
             jLabel5.setText("注册成功！");
         } else {
@@ -251,5 +240,15 @@ public class SignUpJDialog extends javax.swing.JDialog implements Runnable {
     public void run() {
         this.setVisible(true);
 //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void update(MessageBase msg) {
+        if (msg instanceof MessageSignUpInfo){
+            msgInfo = (MessageSignUpInfo)msg;
+            synchronized(this){
+                notify();
+            }
+        }
     }
 }

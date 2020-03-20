@@ -48,19 +48,7 @@ public class DealerNormal extends DealerBase {
 
     @Override
     public void clientDealer(MessageBase msg, DealerToolkits toolkits) {
-        MessageNoraml msgNoraml = (MessageNoraml) msg;
-        String fromName = msg.fromName;
-        if (toolkits.cfMap.containsKey(fromName)) {
-            ChatJFrame tmpFrame = toolkits.cfMap.get(fromName);
-            tmpFrame.addMessage(msgNoraml);
-            tmpFrame.setVisible(true);
-        } else {
-            //弹出窗口
-            ChatJFrame chatJFrame = new ChatJFrame(toolkits.clientSender, fromName);
-            this.addChatFrame(toolkits.cfMap, fromName, chatJFrame);
-            new Thread(chatJFrame).start();
-            chatJFrame.addMessage(msgNoraml);
-        }
+       
     }
     private void addChatFrame(Map cfMap, String keyString, ChatJFrame chatJFrame) {
         if (cfMap.containsKey(keyString)) {

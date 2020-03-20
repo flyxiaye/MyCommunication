@@ -8,8 +8,11 @@ package Client;
 import MessageGroup.MessageBase;
 import MessageGroup.MessageNoraml;
 import MessageGroup.MessageRecord;
+import Notifier.Observable;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JFrame;
 
 /**
@@ -18,8 +21,20 @@ import javax.swing.JFrame;
  */
 public class ChatJFrame extends javax.swing.JFrame implements Runnable {
 
-    ClientSendThread sender = null;
+    public static ClientSendThread sender = null;
     String toName = null;
+    private static Map<String, ChatJFrame> cfMap = new HashMap();
+    
+    public static ChatJFrame getChatFrame(String name){
+        if (cfMap.containsKey(name)){
+            return cfMap.get(name);
+        } else{
+            ChatJFrame cf = new ChatJFrame(name);
+            cfMap.put(name, cf);
+            new Thread(cf).start();
+            return cf;
+        }
+    }
 
     /**
      * Creates new form ChatJFrame
@@ -27,9 +42,8 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
      * @param sender
      * @param toName
      */
-    public ChatJFrame(ClientSendThread sender, String toName) {
+    private ChatJFrame(String toName) {
         initComponents();
-        this.sender = sender;
         this.toName = toName;
         this.setTitle("和" + toName + "的对话");
     }
@@ -171,8 +185,6 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
         msg.toName = toName;
         msg.fromName = Info.userName;
         sender.sendMessage(msg);
-        byte[] data = MessageBase.ObjectToByte(msg);
-        System.out.println(data.length);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
@@ -238,6 +250,5 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
         this.jTextArea3.append(msg.fromName + "  " + dateString + ":\n   " + msg.data + "\n");
         this.jTextArea3.setCaretPosition(jTextArea3.getDocument().getLength());
     }
-    
 
 }

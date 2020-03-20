@@ -26,37 +26,40 @@ public class VisitDB {
 //    final String USER = "root";
 //    final String PASS = "cxl123";
     public Connection con;
+    private static VisitDB visitDB = null;
 
-    public VisitDB() throws SQLException, ClassNotFoundException {
+    public static VisitDB getVisitDB() {
+        if (visitDB == null) {
+            try {
+                visitDB = new VisitDB();
+            } catch (SQLException ex) {
+                Logger.getLogger(VisitDB.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(VisitDB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return visitDB;
+    }
+
+    public static Connection getConnection() {
+        if (visitDB == null) {
+            try {
+                visitDB = new VisitDB();
+            } catch (SQLException ex) {
+                Logger.getLogger(VisitDB.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(VisitDB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return visitDB.con;
+    }
+
+    private VisitDB() throws SQLException, ClassNotFoundException {
         //连接打开数据库
 //        Class.forName(JDBC_DRIVER);
 //        con = DriverManager.getConnection(DB_URL, USER, PASS);
         Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
         con = DriverManager.getConnection("jdbc:ucanaccess://UserInfo.accdb");
-    }
-
-    public void changetStateByHeartBeat(int userId) {
-        //根据心跳包修改临时在线状态
-        String sql = "UPDATE userinfo SET tstate = 1, state = 1 WHERE id = " + Integer.toString(userId);
-        try {
-            Statement stmt = this.con.createStatement();
-            stmt.executeUpdate(sql);
-            stmt.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(VisitDB.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public void changetStateByHeartBeat(String userName) {
-        //根据心跳包修改临时在线状态
-        String sql = "UPDATE userinfo SET tstate = 1, state = 1 WHERE name = '" + userName + "'";
-        try {
-            Statement stmt = this.con.createStatement();
-            stmt.executeUpdate(sql);
-            stmt.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(VisitDB.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     public void dealHeartBeat() {

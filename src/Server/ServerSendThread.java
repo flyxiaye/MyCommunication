@@ -6,13 +6,11 @@
 package Server;
 
 import MessageGroup.MessageBase;
-import MessageGroup.MessageRecord;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,8 +22,21 @@ public class ServerSendThread extends Thread {
     int toPort = 0;
     byte[] dataBuf;
     boolean available = true;      //发送使能
+    
+    private static ServerSendThread sendThread;
+    
+    public static ServerSendThread getSendThread(){
+        return sendThread;
+    }
+    
+    public static ServerSendThread getSendThread(DatagramSocket socket){
+        if (sendThread == null){
+            sendThread = new ServerSendThread(socket);
+        }
+        return sendThread;
+    }
 
-    public ServerSendThread(int formPort) {
+    private ServerSendThread(int formPort) {
         try {
             this.socket = new DatagramSocket(formPort);
         } catch (SocketException ex) {
@@ -33,7 +44,7 @@ public class ServerSendThread extends Thread {
         }
     }
 
-    public ServerSendThread(DatagramSocket socket) {
+    private ServerSendThread(DatagramSocket socket) {
         this.socket = socket;
     }
 

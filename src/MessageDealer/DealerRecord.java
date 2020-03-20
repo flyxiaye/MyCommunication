@@ -5,12 +5,13 @@
  */
 package MessageDealer;
 
-import Client.ChatRecordJDialog;
 import DataBase.ChatRecordFactory;
+import DataBase.VisitDB;
 import MessageGroup.MessageBase;
 import MessageGroup.MessageRecord;
+import Server.ServerSendThread;
+import java.net.InetAddress;
 import java.util.Vector;
-import javax.swing.JFrame;
 
 /**
  *
@@ -19,21 +20,14 @@ import javax.swing.JFrame;
 public class DealerRecord extends DealerBase {
 
     @Override
-    public void serverDealer(MessageBase msg, DealerToolkits toolkits) {
+    public void dealer(MessageBase msg, InetAddress ip, int port) {
         MessageRecord msgRecord = (MessageRecord) msg;
-        ChatRecordFactory crFactory = new ChatRecordFactory(toolkits.DataBaseStream.con);
+        ChatRecordFactory crFactory = new ChatRecordFactory(VisitDB.getConnection());
         Vector recordVector = crFactory.readChatRecords(
                 msgRecord.fromName, msgRecord.toName);
         MessageRecord msgR = new MessageRecord(
                 msgRecord.fromName, msgRecord.toName, recordVector);
-        toolkits.serverSender.sendMessage(msgR, toolkits.toIP, toolkits.toPort);
-    }
-
-    @Override
-    public void clientDealer(MessageBase msg, DealerToolkits toolkits) {
-        MessageRecord msgR = (MessageRecord) msg;
-        new Thread(new ChatRecordJDialog(
-                new JFrame(), false, msgR.toName, msgR)).start();
+        ServerSendThread.getSendThread().sendMessage(msgR, ip, port);
     }
 
 }

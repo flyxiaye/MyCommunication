@@ -237,7 +237,7 @@ public class ClientJFrame extends javax.swing.JFrame implements Observable {
             Logger.getLogger(ClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        ClientSendThread sendThread = new ClientSendThread(
+        ClientSendThread sendThread = ClientSendThread.getSendThread(
                 ClientSocket, Info.remoteHost, Info.remotePort);
         sendThread.start();
         ClientReceiveThread receiveThread = ClientReceiveThread.getClientReceiveThread(ClientSocket);

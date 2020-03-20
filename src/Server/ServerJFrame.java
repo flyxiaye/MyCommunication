@@ -5,30 +5,37 @@
  */
 package Server;
 
+import DataBase.UserFactory;
+import DataBase.UserInfo;
+import DataBase.UserPwd;
 import DataBase.VisitDB;
-import java.sql.Statement;
+import MessageDealer.DealerFactory;
+import MessageGroup.MessageBase;
+import MessageGroup.MessageLoginInfo;
+import MessageGroup.MessageSignUpInfo;
+import Notifier.ServerObservable;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 
 /**
  *
  * @author ChxxxXL
  */
-public class ServerJFrame extends javax.swing.JFrame {
+public class ServerJFrame extends javax.swing.JFrame implements ServerObservable {
 
     /**
      * Creates new form ServerJFrame
      */
     public ServerJFrame() {
         initComponents();
-
+        jList1.setModel(new DefaultListModel());
     }
 
     /**
@@ -119,41 +126,43 @@ public class ServerJFrame extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        final ServerJFrame jFrame = new ServerJFrame();
+        ServerJFrame jFrame = new ServerJFrame();
         java.awt.EventQueue.invokeLater(() -> {
             jFrame.setVisible(true);
         });
+        //数据库对象
+        VisitDB DataBaseStream = VisitDB.getVisitDB();
+        //新建datagram socket对象
+        DatagramSocket socket = null;
         try {
-            //数据库对象
-            VisitDB DataBaseStream = new VisitDB();
-            //新建datagram socket对象
-            DatagramSocket socket = new DatagramSocket(8000);
-            //服务端数据发送线程
-            ServerSendThread sender = new ServerSendThread(socket);
-            sender.start();
-            //服务端数据接收线程
-            ServerReceiveThread receiver
-                    = new ServerReceiveThread(socket, DataBaseStream, jFrame.jTextArea1, sender);
-            receiver.start();
-            //显示在线用户线程
-            new ShowOnlineThread(DataBaseStream, jFrame.jList1).start();
-            //发送在线用户列表线程
-            ShareOnlineStateThread shareOnlineStateThread
-                    = new ShareOnlineStateThread(DataBaseStream);
-            shareOnlineStateThread.start();
-            receiver.setShareOnlineStateThread(shareOnlineStateThread);
-            //定时处理心跳包线程
-            Runnable runnable = () -> {
-                DataBaseStream.dealHeartBeat();
-            };
-            ScheduledExecutorService service = Executors
-                    .newSingleThreadScheduledExecutor();
-            service.scheduleAtFixedRate(runnable, 1, 2, TimeUnit.SECONDS);
-        } catch (SQLException | ClassNotFoundException ex) {
-            Logger.getLogger(ServerJFrame.class.getName()).log(Level.SEVERE, null, ex);
+            socket = new DatagramSocket(8000);
         } catch (SocketException ex) {
             Logger.getLogger(ServerJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //服务端数据发送线程
+        ServerSendThread sender = ServerSendThread.getSendThread(socket);
+        sender.start();
+        //服务端数据接收线程
+        ServerReceiveThread receiver
+                = ServerReceiveThread.getServerReceiveThread(socket);
+        receiver.start();
+        receiver.add(jFrame);
+        //显示在线用户线程
+        new ShowOnlineThread(jFrame.jList1.getModel()).start();
+        //发送在线用户列表线程
+        ShareOnlineStateThread shareOnlineStateThread
+                = new ShareOnlineStateThread(DataBaseStream);
+        shareOnlineStateThread.start();
+        receiver.add(shareOnlineStateThread);
+        //消息处理器工厂
+        receiver.add(new DealerFactory());
+        //定时处理心跳包线程
+        Runnable runnable = () -> {
+            DataBaseStream.dealHeartBeat();
+        };
+        ScheduledExecutorService service = Executors
+                .newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(runnable, 1, 2, TimeUnit.SECONDS);
 
     }
 
@@ -165,4 +174,44 @@ public class ServerJFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void update(MessageBase msg, InetAddress ip, int port) {
+        if (msg instanceof MessageLoginInfo) {
+            MessageLoginInfo msgLoginInfo = (MessageLoginInfo) msg;
+            String ack = "false";   //服务器应答信息
+            UserFactory userFactory = new UserFactory(VisitDB.getConnection());
+            UserInfo user = userFactory.readUser(msgLoginInfo.fromName);
+            UserPwd userPwd = userFactory.readUserPwd(msgLoginInfo.fromName);
+            if (user == null) {
+                ack = "不存在该用户";
+            } else if (1 == user.state) {
+                ack = "您已经登陆！";
+            } else if (userPwd.userPwd.equals(msgLoginInfo.passwd)) {
+                ack = "true";
+                //修改用户信息，写入ip和端口数据
+                user.state = 1;
+                user.ip = ip.getHostAddress();
+                user.port = port;
+                userFactory.writeUser(user);
+                jTextArea1.append(msgLoginInfo.fromName + "已登陆\n");
+                jTextArea1.setCaretPosition(jTextArea1.getDocument().getLength());
+            }
+            MessageBase message = new MessageLoginInfo(ack);
+            ServerSendThread.getSendThread().sendMessage(message, ip, port);
+        } else if (msg instanceof MessageSignUpInfo) {
+            MessageSignUpInfo msgSignUpInfo = (MessageSignUpInfo) msg;
+            MessageSignUpInfo message1;
+            UserFactory userFactory = new UserFactory(VisitDB.getConnection());
+            if (userFactory.readUserPwd(msg.fromName) == null) {
+                userFactory.writeUser(new UserPwd(msgSignUpInfo.fromName, msgSignUpInfo.passwd));
+                message1 = new MessageSignUpInfo("true");
+                jTextArea1.append(msg.fromName + "已注册\n");
+                jTextArea1.setCaretPosition(jTextArea1.getDocument().getLength());
+            } else {
+                message1 = new MessageSignUpInfo("false");
+            }
+            ServerSendThread.getSendThread().sendMessage(message1, ip, port);
+        }
+    }
 }

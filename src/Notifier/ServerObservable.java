@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package MessageDealer;
+package Notifier;
 
 import MessageGroup.MessageBase;
 import java.net.InetAddress;
@@ -12,6 +12,6 @@ import java.net.InetAddress;
  *
  * @author ChxxxXL
  */
-public abstract class DealerBase {
-    public abstract void dealer(MessageBase msg, InetAddress ip, int port);
+public interface ServerObservable {
+    public void update(MessageBase msg, InetAddress ip, int port);
 }

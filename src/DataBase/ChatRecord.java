@@ -5,9 +5,7 @@
  */
 package DataBase;
 
-import com.mysql.cj.protocol.MessageReader;
 import MessageGroup.MessageNoraml;
-import MessageGroup.MessageRecord;
 import java.io.Serializable;
 
 /**

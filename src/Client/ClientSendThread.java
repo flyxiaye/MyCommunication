@@ -6,7 +6,7 @@
 package Client;
 
 import Server.ServerSendThread;
-import exp.MessageExp;
+import MessageGroup.MessageBase;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -27,18 +27,21 @@ public class ClientSendThread extends Thread {
     int toPort = 0;
     byte[] dataBuf;
     boolean available = true;      //发送使能
+    
+    private static ClientSendThread sendThread = null;
 
-    public ClientSendThread(int fromPort, InetAddress toIP, int toPort) {
-        try {
-            socket = new DatagramSocket(fromPort);
-            this.toIP = toIP;
-            this.toPort = toPort;
-        } catch (SocketException ex) {
-            Logger.getLogger(ClientSendThread.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public static ClientSendThread getSendThread() {
+        return sendThread;
     }
 
-    public ClientSendThread(DatagramSocket socket, InetAddress toIP, int toPort) {
+    public static ClientSendThread getSendThread(DatagramSocket socket, InetAddress toIP, int toPort) {
+        if (sendThread == null) {
+            sendThread = new ClientSendThread(socket, toIP, toPort);
+        }
+        return sendThread;
+    }
+
+    private ClientSendThread(DatagramSocket socket, InetAddress toIP, int toPort) {
         this.socket = socket;
         this.toIP = toIP;
         this.toPort = toPort;
@@ -69,9 +72,9 @@ public class ClientSendThread extends Thread {
 
     }
 
-    public void sendMessage(MessageExp msg, InetAddress toIP, int toPort) {
+    public void sendMessage(MessageBase msg, InetAddress toIP, int toPort) {
         while (!this.available);//发送阻塞
-        this.dataBuf = MessageExp.ObjectToByte(msg);
+        this.dataBuf = MessageBase.ObjectToByte(msg);
         this.toIP = toIP;
         this.toPort = toPort;
         packet = new DatagramPacket(dataBuf, dataBuf.length, this.toIP, this.toPort);
@@ -81,9 +84,9 @@ public class ClientSendThread extends Thread {
         }
     }
 
-    public void sendMessage(MessageExp msg) {
+    public void sendMessage(MessageBase msg) {
         while (!this.available);//发送阻塞
-        this.dataBuf = MessageExp.ObjectToByte(msg);
+        this.dataBuf = MessageBase.ObjectToByte(msg);
         packet = new DatagramPacket(dataBuf, dataBuf.length, this.toIP, this.toPort);
         this.available = false;
         synchronized (this) {

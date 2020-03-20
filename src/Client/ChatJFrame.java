@@ -5,9 +5,14 @@
  */
 package Client;
 
-import exp.MessageExp;
+import MessageGroup.MessageBase;
+import MessageGroup.MessageNoraml;
+import MessageGroup.MessageRecord;
+import Notifier.Observable;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JFrame;
 
 /**
@@ -16,9 +21,20 @@ import javax.swing.JFrame;
  */
 public class ChatJFrame extends javax.swing.JFrame implements Runnable {
 
-    ClientSendThread sender = null;
-    ClientReceiveThread receive = null;
+    public static ClientSendThread sender = null;
     String toName = null;
+    private static Map<String, ChatJFrame> cfMap = new HashMap();
+    
+    public static ChatJFrame getChatFrame(String name){
+        if (cfMap.containsKey(name)){
+            return cfMap.get(name);
+        } else{
+            ChatJFrame cf = new ChatJFrame(name);
+            cfMap.put(name, cf);
+            new Thread(cf).start();
+            return cf;
+        }
+    }
 
     /**
      * Creates new form ChatJFrame
@@ -26,11 +42,9 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
      * @param sender
      * @param toName
      */
-    public ChatJFrame(ClientSendThread sender, ClientReceiveThread receive, String toName) {
+    private ChatJFrame(String toName) {
         initComponents();
-        this.sender = sender;
         this.toName = toName;
-        this.receive = receive;
         this.setTitle("和" + toName + "的对话");
     }
 
@@ -148,9 +162,8 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
             return;
         }
         jTextArea1.setText("");
-        MessageExp msg = new MessageExp(MessageExp.NORMAL_MESSAGE, Info.userName, sendMsg);
+        MessageNoraml msg = new MessageNoraml(Info.userName, toName, sendMsg);
         this.addMessage(msg);
-        msg.setToName(toName);
         sender.sendMessage(msg);
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -168,8 +181,9 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         //聊天记录
-        MessageExp msg = new MessageExp(MessageExp.RECORD_MESSAGE);
-        msg.setToName(toName);
+        MessageRecord msg = new MessageRecord();
+        msg.toName = toName;
+        msg.fromName = Info.userName;
         sender.sendMessage(msg);
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -228,12 +242,12 @@ public class ChatJFrame extends javax.swing.JFrame implements Runnable {
 
     }
 
-    public void addMessage(MessageExp msg) {
+    public void addMessage(MessageNoraml msg) {
         //显示消息
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date(System.currentTimeMillis());
         String dateString = formatter.format(date);
-        this.jTextArea3.append(msg.getToName() + "  " + dateString + ":\n   " + msg.getData() + "\n");
+        this.jTextArea3.append(msg.fromName + "  " + dateString + ":\n   " + msg.data + "\n");
         this.jTextArea3.setCaretPosition(jTextArea3.getDocument().getLength());
     }
 

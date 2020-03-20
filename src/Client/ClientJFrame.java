@@ -5,7 +5,10 @@
  */
 package Client;
 
-import exp.MessageExp;
+import MessageGroup.MessageBase;
+import MessageGroup.MessageHeart;
+import MessageGroup.MessageOnlineUser;
+import Notifier.Observable;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -15,22 +18,23 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.sound.midi.Receiver;
+import javax.swing.DefaultListModel;
 
 /**
  *
  * @author ChxxxXL
  */
-public class ClientJFrame extends javax.swing.JFrame {
+public class ClientJFrame extends javax.swing.JFrame implements Observable {
 
-    ClientSendThread sender = null; //发送线程对象
-    ClientReceiveThread receiver = null; //接收线程对象
+//    ClientSendThread sender = null; //发送线程对象
+//    ClientReceiveThread receiver = null; //接收线程对象
 
     /**
      * Creates new form ClientJFrame
      */
     public ClientJFrame() {
         initComponents();
+        jList1.setModel(new DefaultListModel());
     }
 
     /**
@@ -174,14 +178,8 @@ public class ClientJFrame extends javax.swing.JFrame {
             if (userName == null) {
                 return;
             }
-            //防止重复建立窗体对象
-            if (receiver.cfMap.containsKey(userName)) {
-                receiver.cfMap.get(userName).setVisible(true);
-                return;
-            }
-            ChatJFrame chatJFrame = new ChatJFrame(sender, receiver, userName);
-            receiver.addChatFrame(userName, chatJFrame);
-            new Thread(chatJFrame).start();
+            ChatJFrame cf = ChatJFrame.getChatFrame(userName);
+            cf.setVisible(true);
         }
     }//GEN-LAST:event_jList1MouseClicked
 
@@ -230,7 +228,7 @@ public class ClientJFrame extends javax.swing.JFrame {
         } catch (UnknownHostException ex) {
             Logger.getLogger(ClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //创建发送流
+        //创建socket
         DatagramSocket ClientSocket = null;
         try {
             ClientSocket = new DatagramSocket();
@@ -239,8 +237,13 @@ public class ClientJFrame extends javax.swing.JFrame {
             Logger.getLogger(ClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        ClientSendThread sendThread = ClientSendThread.getSendThread(
+                ClientSocket, Info.remoteHost, Info.remotePort);
+        sendThread.start();
+        ClientReceiveThread receiveThread = ClientReceiveThread.getClientReceiveThread(ClientSocket);
+        receiveThread.start();
         //登陆对话框
-        LoginJDialog dialog = new LoginJDialog(new javax.swing.JFrame(), true, ClientSocket);
+        LoginJDialog dialog = new LoginJDialog(new javax.swing.JFrame(), true, sendThread);
         dialog.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
@@ -250,23 +253,19 @@ public class ClientJFrame extends javax.swing.JFrame {
         dialog.setVisible(true);
 
         /* Create and display the form */
-        final ClientJFrame jFrame = new ClientJFrame();
+        ClientJFrame jFrame = new ClientJFrame();
         jFrame.jLabel1.setText(Info.userName);
         jFrame.setTitle("即时通讯客户端");
         java.awt.EventQueue.invokeLater(() -> {
             jFrame.setVisible(true);
         });
-        InetAddress remoteHost = Info.remoteHost;//服务器IP地址
-        int remotePort = Info.remotePort;//服务器端口
-        jFrame.receiver = new ClientReceiveThread(ClientSocket, jFrame.jList1);
-        jFrame.sender = new ClientSendThread(ClientSocket, remoteHost, remotePort);
-        jFrame.receiver.setSender(jFrame.sender);
-        jFrame.receiver.start();
-        jFrame.sender.start();
+        receiveThread.add(jFrame);
+        receiveThread.add(new ChatFrameFactory(sendThread));
+
         //心跳包发送线程
         Runnable runnable = () -> {
-            MessageExp msg = new MessageExp(MessageExp.HEART_MESSAGE, Info.userName);
-            jFrame.sender.sendMessage(msg);
+            MessageBase msg = new MessageHeart(Info.userName);
+            sendThread.sendMessage(msg);
         };
         ScheduledExecutorService service = Executors
                 .newSingleThreadScheduledExecutor();
@@ -286,4 +285,20 @@ public class ClientJFrame extends javax.swing.JFrame {
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane3;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void update(MessageBase msg) {
+        if (msg instanceof MessageOnlineUser) {
+            MessageOnlineUser msgOnlineUser = (MessageOnlineUser) msg;
+            if (jList1 == null)
+                return;
+            DefaultListModel lm = (DefaultListModel) jList1.getModel();
+            lm.clear();
+            for (String str : msgOnlineUser.users) {
+                if (!str.equals(Info.userName)) {
+                    lm.addElement(str);
+                }
+            }
+        }
+    }
 }

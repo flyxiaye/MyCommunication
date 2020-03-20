@@ -28,3 +28,4 @@ hs_err_pid*
 !/accessdriver/hsqldb.jar
 !/accessdriver/jackcess-2.1.11.jar
 !/accessdriver/ucanaccess-4.0.4.jar
+UserInfo.accdb

@@ -5,7 +5,7 @@
  */
 package Server;
 
-import exp.MessageExp;
+import MessageGroup.MessageBase;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -22,8 +22,21 @@ public class ServerSendThread extends Thread {
     int toPort = 0;
     byte[] dataBuf;
     boolean available = true;      //发送使能
+    
+    private static ServerSendThread sendThread;
+    
+    public static ServerSendThread getSendThread(){
+        return sendThread;
+    }
+    
+    public static ServerSendThread getSendThread(DatagramSocket socket){
+        if (sendThread == null){
+            sendThread = new ServerSendThread(socket);
+        }
+        return sendThread;
+    }
 
-    public ServerSendThread(int formPort) {
+    private ServerSendThread(int formPort) {
         try {
             this.socket = new DatagramSocket(formPort);
         } catch (SocketException ex) {
@@ -31,7 +44,7 @@ public class ServerSendThread extends Thread {
         }
     }
 
-    public ServerSendThread(DatagramSocket socket) {
+    private ServerSendThread(DatagramSocket socket) {
         this.socket = socket;
     }
 
@@ -59,14 +72,11 @@ public class ServerSendThread extends Thread {
 
     }
 
-    public void sendMessage(MessageExp msg, InetAddress toIP, int toPort) {
+    public void sendMessage(MessageBase msg, InetAddress toIP, int toPort) {
         while (!this.available); //发送阻塞
-        this.dataBuf = MessageExp.ObjectToByte(msg);
+        this.dataBuf = MessageBase.ObjectToByte(msg);
         this.toIP = toIP;
         this.toPort = toPort;
-//        System.out.println(msg.getId());
-//        System.out.println(msg.getToName());
-//        System.out.println(msg.getData());
         packet = new DatagramPacket(dataBuf, dataBuf.length, this.toIP, this.toPort);
         this.available = true;
         synchronized (this) {
